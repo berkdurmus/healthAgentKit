@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Agent Kit - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .triage-icon {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .agent-icon {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .metrics-icon {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #333;
+        }
+
+        .simulation-icon {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #333;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .metric:last-child {
+            margin-bottom: 0;
+        }
+
+        .metric-label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .controls h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .button-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-idle {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .status-running {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-complete {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 3rem;
+        }
+
+        .log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+        }
+
+        .log-timestamp {
+            color: #a0aec0;
+        }
+
+        .log-level-info {
+            color: #63b3ed;
+        }
+
+        .log-level-warn {
+            color: #f6e05e;
+        }
+
+        .log-level-error {
+            color: #fc8181;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🏥 Health Agent Kit</h1>
+            <p>Healthcare Reinforcement Learning Simulation Dashboard</p>
+        </header>
+
+        <div class="controls">
+            <h3>Simulation Controls</h3>
+            <div class="control-group">
+                <button id="runSingle" class="button button-primary">
+                    🚀 Run Single Episode
+                </button>
+                <button id="runMultiple" class="button button-primary">
+                    📊 Run 10 Episodes
+                </button>
+                <button id="pauseResume" class="button button-secondary" disabled>
+                    ⏸️ Pause
+                </button>
+                <button id="stop" class="button button-secondary" disabled>
+                    ⏹️ Stop
+                </button>
+                <button id="reset" class="button button-secondary">
+                    🔄 Reset
+                </button>
+            </div>
+            <div>
+                <span id="status" class="status status-idle">Idle</span>
+                <div class="progress-bar">
+                    <div id="progress" class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- Triage Environment Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon triage-icon">🏥</div>
+                    <div class="card-title">Triage Environment</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Patients in Queue</span>
+                    <span id="queueLength" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Available Resources</span>
+                    <span id="availableResources" class="metric-value">8</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Average Wait Time</span>
+                    <span id="avgWaitTime" class="metric-value">0 min</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Patient Satisfaction</span>
+                    <span id="patientSatisfaction" class="metric-value">0%</span>
+                </div>
+            </div>
+
+            <!-- Agent Performance Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon agent-icon">🤖</div>
+                    <div class="card-title">Agent Performance</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Episodes Completed</span>
+                    <span id="episodeCount" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Steps</span>
+                    <span id="totalSteps" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Success Rate</span>
+                    <span id="successRate" class="metric-value">0%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Avg Confidence</span>
+                    <span id="avgConfidence" class="metric-value">0%</span>
+                </div>
+            </div>
+
+            <!-- Simulation Metrics Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon metrics-icon">📈</div>
+                    <div class="card-title">Simulation Metrics</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Average Reward</span>
+                    <span id="avgReward" class="metric-value">0.0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Best Episode Reward</span>
+                    <span id="bestReward" class="metric-value">0.0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Safety Incidents</span>
+                    <span id="safetyIncidents" class="metric-value">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Cost per Patient</span>
+                    <span id="costPerPatient" class="metric-value">$0</span>
+                </div>
+            </div>
+
+            <!-- Real-time Status Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon simulation-icon">⚡</div>
+                    <div class="card-title">Real-time Status</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Current Episode</span>
+                    <span id="currentEpisode" class="metric-value">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Current Step</span>
+                    <span id="currentStep" class="metric-value">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Episode Reward</span>
+                    <span id="episodeReward" class="metric-value">0.0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Last Action</span>
+                    <span id="lastAction" class="metric-value">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon" style="background: #2d3748; color: white;">📋</div>
+                <div class="card-title">Activity Log</div>
+            </div>
+            <div id="log" class="log">
+                <div class="log-entry">
+                    <span class="log-timestamp">[Ready]</span> 
+                    <span class="log-level-info">Health Agent Kit Dashboard loaded. Ready for simulation.</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Built with TypeScript • React • WebGL • Healthcare RL</p>
+            <p>Part of the Health Agent Kit Framework</p>
+        </footer>
+    </div>
+
+    <script>
+        // Mock simulation state for demonstration
+        let simulationState = {
+            isRunning: false,
+            isPaused: false,
+            currentEpisode: 0,
+            currentStep: 0,
+            totalEpisodes: 0,
+            metrics: {
+                queueLength: 3,
+                availableResources: 8,
+                avgWaitTime: 15.3,
+                patientSatisfaction: 85,
+                episodeCount: 0,
+                totalSteps: 0,
+                successRate: 0,
+                avgConfidence: 75,
+                avgReward: 0,
+                bestReward: 0,
+                safetyIncidents: 0,
+                costPerPatient: 125,
+                episodeReward: 0,
+                lastAction: 'Waiting...'
+            }
+        };
+
+        // UI Element references
+        const elements = {
+            runSingle: document.getElementById('runSingle'),
+            runMultiple: document.getElementById('runMultiple'),
+            pauseResume: document.getElementById('pauseResume'),
+            stop: document.getElementById('stop'),
+            reset: document.getElementById('reset'),
+            status: document.getElementById('status'),
+            progress: document.getElementById('progress'),
+            log: document.getElementById('log'),
+            // Metrics
+            queueLength: document.getElementById('queueLength'),
+            availableResources: document.getElementById('availableResources'),
+            avgWaitTime: document.getElementById('avgWaitTime'),
+            patientSatisfaction: document.getElementById('patientSatisfaction'),
+            episodeCount: document.getElementById('episodeCount'),
+            totalSteps: document.getElementById('totalSteps'),
+            successRate: document.getElementById('successRate'),
+            avgConfidence: document.getElementById('avgConfidence'),
+            avgReward: document.getElementById('avgReward'),
+            bestReward: document.getElementById('bestReward'),
+            safetyIncidents: document.getElementById('safetyIncidents'),
+            costPerPatient: document.getElementById('costPerPatient'),
+            currentEpisode: document.getElementById('currentEpisode'),
+            currentStep: document.getElementById('currentStep'),
+            episodeReward: document.getElementById('episodeReward'),
+            lastAction: document.getElementById('lastAction')
+        };
+
+        // Event listeners
+        elements.runSingle.addEventListener('click', () => runSimulation(1));
+        elements.runMultiple.addEventListener('click', () => runSimulation(10));
+        elements.pauseResume.addEventListener('click', togglePause);
+        elements.stop.addEventListener('click', stopSimulation);
+        elements.reset.addEventListener('click', resetSimulation);
+
+        // Update UI with current metrics
+        function updateUI() {
+            const metrics = simulationState.metrics;
+            
+            elements.queueLength.textContent = metrics.queueLength;
+            elements.availableResources.textContent = metrics.availableResources;
+            elements.avgWaitTime.textContent = `${metrics.avgWaitTime.toFixed(1)} min`;
+            elements.patientSatisfaction.textContent = `${metrics.patientSatisfaction}%`;
+            elements.episodeCount.textContent = metrics.episodeCount;
+            elements.totalSteps.textContent = metrics.totalSteps;
+            elements.successRate.textContent = `${metrics.successRate}%`;
+            elements.avgConfidence.textContent = `${metrics.avgConfidence}%`;
+            elements.avgReward.textContent = metrics.avgReward.toFixed(2);
+            elements.bestReward.textContent = metrics.bestReward.toFixed(2);
+            elements.safetyIncidents.textContent = metrics.safetyIncidents;
+            elements.costPerPatient.textContent = `$${metrics.costPerPatient}`;
+            elements.currentEpisode.textContent = simulationState.currentEpisode || '-';
+            elements.currentStep.textContent = simulationState.currentStep || '-';
+            elements.episodeReward.textContent = metrics.episodeReward.toFixed(2);
+            elements.lastAction.textContent = metrics.lastAction;
+        }
+
+        // Logging functions
+        function log(level, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-level-${level}">${message}</span>
+            `;
+            elements.log.appendChild(entry);
+            elements.log.scrollTop = elements.log.scrollHeight;
+        }
+
+        // Simulation control functions
+        async function runSimulation(episodes) {
+            simulationState.isRunning = true;
+            simulationState.totalEpisodes = episodes;
+            updateStatus('running');
+            
+            log('info', `Starting simulation with ${episodes} episode${episodes > 1 ? 's' : ''}...`);
+            
+            for (let ep = 1; ep <= episodes; ep++) {
+                if (!simulationState.isRunning) break;
+                
+                simulationState.currentEpisode = ep;
+                log('info', `Episode ${ep} started`);
+                
+                // Simulate episode steps
+                for (let step = 1; step <= 50; step++) {
+                    if (!simulationState.isRunning) break;
+                    if (simulationState.isPaused) {
+                        await new Promise(resolve => {
+                            const checkPause = () => {
+                                if (!simulationState.isPaused || !simulationState.isRunning) {
+                                    resolve();
+                                } else {
+                                    setTimeout(checkPause, 100);
+                                }
+                            };
+                            checkPause();
+                        });
+                    }
+                    
+                    simulationState.currentStep = step;
+                    
+                    // Simulate metrics updates
+                    simulationState.metrics.queueLength = Math.max(0, 3 + Math.floor(Math.random() * 5) - 2);
+                    simulationState.metrics.episodeReward += (Math.random() - 0.3) * 2;
+                    simulationState.metrics.lastAction = ['Triage Priority 2', 'Triage Priority 3', 'Wait', 'Reassess'][Math.floor(Math.random() * 4)];
+                    
+                    if (step % 10 === 0) {
+                        log('info', `Step ${step}: Reward=${simulationState.metrics.episodeReward.toFixed(2)}`);
+                    }
+                    
+                    updateUI();
+                    updateProgress((ep - 1) / episodes + (step / 50) / episodes);
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                // Episode completed
+                simulationState.metrics.episodeCount++;
+                simulationState.metrics.totalSteps += simulationState.currentStep;
+                simulationState.metrics.avgReward = (simulationState.metrics.avgReward * (ep - 1) + simulationState.metrics.episodeReward) / ep;
+                simulationState.metrics.bestReward = Math.max(simulationState.metrics.bestReward, simulationState.metrics.episodeReward);
+                simulationState.metrics.successRate = Math.floor(85 + Math.random() * 10);
+                
+                const success = simulationState.metrics.episodeReward > 3;
+                log(success ? 'info' : 'warn', `Episode ${ep} completed: ${simulationState.metrics.episodeReward.toFixed(2)} reward`);
+                
+                simulationState.metrics.episodeReward = 0;
+                updateUI();
+            }
+            
+            simulationState.isRunning = false;
+            simulationState.currentEpisode = 0;
+            simulationState.currentStep = 0;
+            updateStatus('complete');
+            updateProgress(1);
+            
+            log('info', 'Simulation completed successfully!');
+            updateUI();
+        }
+
+        function togglePause() {
+            simulationState.isPaused = !simulationState.isPaused;
+            const button = elements.pauseResume;
+            if (simulationState.isPaused) {
+                button.textContent = '▶️ Resume';
+                updateStatus('paused');
+                log('warn', 'Simulation paused');
+            } else {
+                button.textContent = '⏸️ Pause';
+                updateStatus('running');
+                log('info', 'Simulation resumed');
+            }
+        }
+
+        function stopSimulation() {
+            simulationState.isRunning = false;
+            simulationState.isPaused = false;
+            updateStatus('idle');
+            updateProgress(0);
+            log('warn', 'Simulation stopped by user');
+        }
+
+        function resetSimulation() {
+            simulationState.isRunning = false;
+            simulationState.isPaused = false;
+            simulationState.currentEpisode = 0;
+            simulationState.currentStep = 0;
+            simulationState.metrics = {
+                ...simulationState.metrics,
+                episodeCount: 0,
+                totalSteps: 0,
+                avgReward: 0,
+                bestReward: 0,
+                episodeReward: 0,
+                lastAction: 'Waiting...'
+            };
+            updateStatus('idle');
+            updateProgress(0);
+            log('info', 'Simulation reset');
+            updateUI();
+        }
+
+        function updateStatus(status) {
+            const statusEl = elements.status;
+            const runButtons = [elements.runSingle, elements.runMultiple];
+            const controlButtons = [elements.pauseResume, elements.stop];
+            
+            statusEl.className = 'status status-' + status;
+            
+            switch (status) {
+                case 'idle':
+                    statusEl.textContent = 'Idle';
+                    runButtons.forEach(btn => btn.disabled = false);
+                    controlButtons.forEach(btn => btn.disabled = true);
+                    elements.pauseResume.textContent = '⏸️ Pause';
+                    break;
+                case 'running':
+                    statusEl.textContent = 'Running';
+                    runButtons.forEach(btn => btn.disabled = true);
+                    controlButtons.forEach(btn => btn.disabled = false);
+                    break;
+                case 'paused':
+                    statusEl.textContent = 'Paused';
+                    break;
+                case 'complete':
+                    statusEl.textContent = 'Complete';
+                    runButtons.forEach(btn => btn.disabled = false);
+                    controlButtons.forEach(btn => btn.disabled = true);
+                    break;
+            }
+        }
+
+        function updateProgress(percentage) {
+            elements.progress.style.width = `${percentage * 100}%`;
+        }
+
+        // Initialize UI
+        updateUI();
+        
+        // Simulate some initial activity
+        setTimeout(() => {
+            log('info', 'Emergency Department Triage Environment initialized');
+            log('info', 'Rule-based Triage Agent loaded with clinical protocols');
+            log('info', 'Ready to simulate healthcare workflows');
+        }, 1000);
+    </script>
+</body>
+</html> 
