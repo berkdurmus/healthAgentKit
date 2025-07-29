@@ -1,15 +1,33 @@
 /**
  * Test setup and utilities for Health Agent Kit
  */
+import { 
+  StateType, 
+  ActionType, 
+  RewardCategory, 
+  Gender,
+  InsuranceType,
+  HousingStatus,
+  EmploymentStatus,
+  EducationLevel,
+  TransportationAccess,
+  SocialSupportLevel,
+  FoodSecurityLevel,
+  SeverityLevel,
+  AcuityLevel,
+  EnvironmentType,
+  AgentType
+} from '../types/core.types';
 
 // Mock implementations for testing
 export const mockPatientProfile = {
   id: 'test-patient-1',
   demographics: {
     age: 45,
-    gender: 'male' as const,
+    gender: Gender.MALE,
+    ethnicity: 'White',
     language: 'English',
-    insuranceType: 'private' as const,
+    insuranceType: InsuranceType.PRIVATE,
     location: {
       address: '123 Test St',
       city: 'Test City',
@@ -27,8 +45,8 @@ export const mockPatientProfile = {
     chiefComplaint: 'Chest pain',
     symptoms: [],
     onset: new Date(),
-    severity: 'moderate' as const,
-    acuity: 'medium' as const,
+    severity: SeverityLevel.MODERATE,
+    acuity: AcuityLevel.MEDIUM,
     painLevel: 7
   },
   vitalSigns: {
@@ -43,12 +61,12 @@ export const mockPatientProfile = {
     timestamp: new Date()
   },
   socialDeterminants: {
-    housing: 'owned' as const,
-    employment: 'employed' as const,
-    education: 'college_degree' as const,
-    transportation: 'reliable' as const,
-    socialSupport: 'strong' as const,
-    foodSecurity: 'secure' as const
+    housing: HousingStatus.OWNED,
+    employment: EmploymentStatus.EMPLOYED,
+    education: EducationLevel.COLLEGE_DEGREE,
+    transportation: TransportationAccess.RELIABLE,
+    socialSupport: SocialSupportLevel.STRONG,
+    foodSecurity: FoodSecurityLevel.SECURE
   },
   riskFactors: [],
   allergies: [],
@@ -58,14 +76,14 @@ export const mockPatientProfile = {
 export const mockState = {
   id: 'test-state-1',
   timestamp: new Date(),
-  type: 'initial' as const,
+  type: StateType.INITIAL,
   data: { queueLength: 3 },
   isTerminal: false
 };
 
 export const mockAction = {
   id: 'test-action-1',
-  type: 'triage_assign' as const,
+  type: ActionType.TRIAGE_ASSIGN,
   parameters: { patientId: 'test-patient-1', priority: 2 },
   estimatedDuration: 10
 };
@@ -77,23 +95,23 @@ export const mockReward = {
       name: 'accuracy',
       value: 8.0,
       weight: 0.5,
-      category: 'patient_outcomes' as const
+      category: RewardCategory.PATIENT_OUTCOMES
     },
     {
       name: 'efficiency',
       value: 2.0,
       weight: 0.5,
-      category: 'efficiency' as const
+      category: RewardCategory.EFFICIENCY
     }
   ],
   reasoning: 'Good triage decision'
 };
 
-// Test utilities
+// Test utilities  
 export const createMockEnvironment = () => ({
   id: 'test-env',
   name: 'Test Environment',
-  type: 'emergency_department' as const,
+  type: EnvironmentType.EMERGENCY_DEPARTMENT,
   getCurrentState: jest.fn().mockReturnValue(mockState),
   getAvailableActions: jest.fn().mockReturnValue([mockAction]),
   step: jest.fn().mockResolvedValue({
@@ -115,7 +133,7 @@ export const createMockEnvironment = () => ({
   getStats: jest.fn().mockReturnValue({
     id: 'test-env',
     name: 'Test Environment',
-    type: 'emergency_department',
+    type: EnvironmentType.EMERGENCY_DEPARTMENT,
     totalEpisodes: 0,
     currentEpisodeSteps: 0,
     maxStepsPerEpisode: 100,
@@ -128,7 +146,7 @@ export const createMockEnvironment = () => ({
 export const createMockAgent = () => ({
   id: 'test-agent',
   name: 'Test Agent',
-  type: 'rule_based' as const,
+  type: AgentType.RULE_BASED,
   selectAction: jest.fn().mockResolvedValue(mockAction),
   update: jest.fn().mockResolvedValue(undefined),
   getConfidence: jest.fn().mockReturnValue(0.8),
@@ -138,13 +156,15 @@ export const createMockAgent = () => ({
   getStats: jest.fn().mockReturnValue({
     id: 'test-agent',
     name: 'Test Agent',
-    type: 'rule_based',
+    type: AgentType.RULE_BASED,
     episodeCount: 0,
     totalSteps: 0,
     experienceCount: 0,
     isTraining: true
   })
 });
+
+// Jest types should be available through @types/jest
 
 // Jest setup
 beforeEach(() => {
