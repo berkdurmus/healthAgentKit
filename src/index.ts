@@ -20,7 +20,11 @@ export { BaseAgent } from '@/core/base.agent';
 export { BaseEnvironment } from '@/core/base.environment';
 export * from '@/environments/triage.environment';
 export * from '@/agents/rule-based.agent';
+export * from '@/agents/ml.agent';
+export * from '@/agents/random.agent';
 export * from '@/simulation/simulation.engine';
+export * from '@/utils/patient.generator';
+export * from '@/data/clinical.data';
 
 // Example usage function
 export async function runTriageSimulation(): Promise<void> {
