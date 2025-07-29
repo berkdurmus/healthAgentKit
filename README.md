@@ -10,6 +10,12 @@
 
 Health Agent Kit is a comprehensive TypeScript framework designed to simulate and evaluate reinforcement learning agents in healthcare scenarios. It provides tools for creating clinical environments, implementing agent policies, and analyzing healthcare workflow optimization.
 
+<img width="1224" height="860" alt="Screenshot 2025-07-29 at 18 36 09" src="https://github.com/user-attachments/assets/1fa6851e-9bf7-4635-b793-25ca18cc6e68" />
+<img width="1222" height="855" alt="Screenshot 2025-07-29 at 18 36 18" src="https://github.com/user-attachments/assets/a3af8c81-f87f-466a-9041-2f8491cbe97d" />
+<img width="1226" height="860" alt="Screenshot 2025-07-29 at 18 36 28" src="https://github.com/user-attachments/assets/ae1e4ed7-a817-449b-8d16-8c723fc8695b" />
+<img width="1224" height="859" alt="Screenshot 2025-07-29 at 18 36 37" src="https://github.com/user-attachments/assets/706b797a-8fe3-40a3-a0ba-f3488224ae3a" />
+
+
 ### Key Features
 
 - 🏥 **Clinical Environment Simulation** - Emergency departments, primary care, specialist clinics
