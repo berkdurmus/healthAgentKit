@@ -2,6 +2,8 @@
 
 > TypeScript framework for healthcare reinforcement learning agents - simulating clinical workflows, triage, and care pathways
 
+
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -9,6 +11,10 @@
 ## Overview
 
 Health Agent Kit is a comprehensive TypeScript framework designed to simulate and evaluate reinforcement learning agents in healthcare scenarios. It provides tools for creating clinical environments, implementing agent policies, and analyzing healthcare workflow optimization.
+
+
+https://github.com/user-attachments/assets/e7b96660-82d2-4019-ba1e-fe7484bb02b5
+
 
 ### Key Features
 
