@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { healthAgentAPI, type PatientData } from '../services/api'
 import { 
   User, 
   Heart, 
@@ -150,19 +149,8 @@ const generateMockPatient = (): PatientProfile => {
   }
 }
 
-// Helper function to safely format dates
-const formatDate = (dateValue: string | Date | undefined): string => {
-  if (!dateValue) return 'N/A';
-  try {
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
-    return date.toLocaleDateString();
-  } catch {
-    return 'N/A';
-  }
-};
-
 const PatientViewer: React.FC = () => {
-  const [currentPatient, setCurrentPatient] = useState<PatientProfile | null>(null)
+  const [currentPatient, setCurrentPatient] = useState<PatientProfile>(generateMockPatient())
   const [generationSettings, setGenerationSettings] = useState({
     ageRange: 'all',
     severity: 'all',
@@ -170,72 +158,16 @@ const PatientViewer: React.FC = () => {
   })
   const [patientHistory, setPatientHistory] = useState<PatientProfile[]>([])
   const [demographics, setDemographics] = useState({
-    totalGenerated: 0,
-    averageAge: 0,
-    genderDistribution: { male: 0, female: 0, other: 0 },
-    severityDistribution: { mild: 0, moderate: 0, severe: 0, critical: 0 }
+    totalGenerated: 1247,
+    averageAge: 54.3,
+    genderDistribution: { male: 48.2, female: 49.1, other: 2.7 },
+    severityDistribution: { mild: 32.1, moderate: 45.2, severe: 18.4, critical: 4.3 }
   })
-  const [isLoading, setIsLoading] = useState(false)
 
-  // Load initial data
-  useEffect(() => {
-    loadPatientStats()
-    generateNewPatient()
-  }, [])
-
-  const loadPatientStats = async () => {
-    try {
-      const stats = await healthAgentAPI.getPatientStats()
-      if (stats) {
-        setDemographics({
-          totalGenerated: stats.totalGenerated || 0,
-          averageAge: stats.averageAge || 0,
-          genderDistribution: stats.genderDistribution || { male: 0, female: 0, other: 0 },
-          severityDistribution: stats.severityDistribution || { mild: 0, moderate: 0, severe: 0, critical: 0 }
-        })
-      }
-    } catch (error) {
-      console.error('Failed to load patient stats:', error)
-      // Fallback to mock data
-      setDemographics({
-        totalGenerated: 1247,
-        averageAge: 54.3,
-        genderDistribution: { male: 48.2, female: 49.1, other: 2.7 },
-        severityDistribution: { mild: 32.1, moderate: 45.2, severe: 18.4, critical: 4.3 }
-      })
-    }
-  }
-
-  const generateNewPatient = async () => {
-    setIsLoading(true)
-    try {
-      // Create options based on generation settings
-      const options: any = {}
-      if (generationSettings.ageRange !== 'all') {
-        options.ageRange = generationSettings.ageRange
-      }
-      if (generationSettings.severity !== 'all') {
-        options.severity = generationSettings.severity
-      }
-      if (generationSettings.acuity !== 'all') {
-        options.acuity = generationSettings.acuity
-      }
-
-      const newPatient = await healthAgentAPI.generatePatient(options)
-      setCurrentPatient(newPatient as PatientProfile)
-      setPatientHistory(prev => [newPatient as PatientProfile, ...prev.slice(0, 9)]) // Keep last 10
-      
-      // Update demographics
-      await loadPatientStats()
-    } catch (error) {
-      console.error('Failed to generate patient:', error)
-      // Fallback to mock patient
-      const mockPatient = generateMockPatient()
-      setCurrentPatient(mockPatient)
-      setPatientHistory(prev => [mockPatient, ...prev.slice(0, 9)])
-    } finally {
-      setIsLoading(false)
-    }
+  const generateNewPatient = () => {
+    const newPatient = generateMockPatient()
+    setCurrentPatient(newPatient)
+    setPatientHistory(prev => [newPatient, ...prev.slice(0, 9)]) // Keep last 10
   }
 
   const getSeverityColor = (severity: string) => {
@@ -278,27 +210,6 @@ const PatientViewer: React.FC = () => {
     }
   }
 
-  // Show loading state if no patient
-  if (!currentPatient) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Patient Generation</h2>
-            <p className="text-muted-foreground">
-              Loading patient data...
-            </p>
-          </div>
-        </div>
-        <Card>
-          <CardContent className="flex items-center justify-center h-32">
-            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       {/* Header with Generation Controls */}
@@ -309,9 +220,9 @@ const PatientViewer: React.FC = () => {
             Realistic patient profiles with clinical data distributions
           </p>
         </div>
-        <Button onClick={generateNewPatient} disabled={isLoading} className="flex items-center space-x-2">
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>{isLoading ? 'Generating...' : 'Generate New Patient'}</span>
+        <Button onClick={generateNewPatient} className="flex items-center space-x-2">
+          <RefreshCw className="h-4 w-4" />
+          <span>Generate New Patient</span>
         </Button>
       </div>
 
@@ -378,27 +289,27 @@ const PatientViewer: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           {/* Patient Overview */}
           <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <User className="h-6 w-6 text-blue-500" />
-                      <div>
-                        <CardTitle>Patient #{currentPatient.id}</CardTitle>
-                        <CardDescription>
-                          {currentPatient.demographics.age} year old {currentPatient.demographics.gender} • {currentPatient.demographics.ethnicity}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Badge variant={getSeverityColor(currentPatient.currentCondition.severity)}>
-                        {currentPatient.currentCondition.severity}
-                      </Badge>
-                      <Badge variant={getAcuityColor(currentPatient.currentCondition.acuity)}>
-                        {currentPatient.currentCondition.acuity} Acuity
-                      </Badge>
-                    </div>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <User className="h-6 w-6 text-blue-500" />
+                  <div>
+                    <CardTitle>Patient #{currentPatient.id}</CardTitle>
+                    <CardDescription>
+                      {currentPatient.demographics.age} year old {currentPatient.demographics.gender} • {currentPatient.demographics.ethnicity}
+                    </CardDescription>
                   </div>
-                </CardHeader>
+                </div>
+                <div className="flex space-x-2">
+                  <Badge variant={getSeverityColor(currentPatient.currentCondition.severity)}>
+                    {currentPatient.currentCondition.severity}
+                  </Badge>
+                  <Badge variant={getAcuityColor(currentPatient.currentCondition.acuity)}>
+                    {currentPatient.currentCondition.acuity} Acuity
+                  </Badge>
+                </div>
+              </div>
+            </CardHeader>
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
@@ -411,7 +322,7 @@ const PatientViewer: React.FC = () => {
                   </p>
                   <div className="flex items-center space-x-2 text-sm">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>Onset: {formatDate(currentPatient.currentCondition.onset)}</span>
+                    <span>Onset: {currentPatient.currentCondition.onset.toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center space-x-2 text-sm">
                     <AlertTriangle className="h-4 w-4 text-muted-foreground" />
